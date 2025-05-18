@@ -10,7 +10,7 @@ This repository is empty. Any task executed on it should be considered a new cap
    ```
    python app.py
    ```
-6. Open your web browser and go to `http://localhost:8000` to see the "Hello World" message.
+6. Open your web browser and go to `http://localhost:8000` to see the "Sum Calculator" webpage.
 
 ## Instructions to use the webpage
 
