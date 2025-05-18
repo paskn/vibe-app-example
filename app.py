@@ -6,7 +6,8 @@ class HelloWorldHandler(http.server.SimpleHTTPRequestHandler):
         self.send_response(200)
         self.send_header("Content-type", "text/html")
         self.end_headers()
-        self.wfile.write(b"Hello World")
+        with open("index.html", "rb") as file:
+            self.wfile.write(file.read())
 
 PORT = 8000
 
