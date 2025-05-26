@@ -2,6 +2,44 @@
 <html>
 <head>
     <title>Sum Calculator</title>
+    <style>
+        body {
+            background-color: #fff;
+            color: #000;
+        }
+
+        .dark-mode {
+            background-color: #333;
+            color: #fff;
+        }
+
+        input {
+            background-color: #fff;
+            color: #000;
+            border: 1px solid #ccc;
+            padding: 5px;
+        }
+
+        .dark-mode input {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #888;
+        }
+
+        button {
+            background-color: #f0f0f0;
+            color: #000;
+            border: 1px solid #ccc;
+            padding: 8px 12px;
+            cursor: pointer;
+        }
+
+        .dark-mode button {
+            background-color: #555;
+            color: #fff;
+            border: 1px solid #888;
+        }
+    </style>
 </head>
 <body>
     <h1>Sum Calculator</h1>
@@ -9,12 +47,17 @@
     <input type="number" id="num2" placeholder="Enter second number">
     <button onclick="calculateSum()">Calculate Sum</button>
     <p id="result"></p>
+    <button onclick="toggleDarkMode()">Toggle Dark Mode</button>
     <script>
         function calculateSum() {
             var num1 = parseFloat(document.getElementById('num1').value);
             var num2 = parseFloat(document.getElementById('num2').value);
             var sum = num1 + num2;
             document.getElementById('result').innerText = "Sum: " + sum;
+        }
+
+        function toggleDarkMode() {
+            document.body.classList.toggle('dark-mode');
         }
     </script>
 </body>
