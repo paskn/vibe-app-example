@@ -2,112 +2,307 @@
 <html>
 <head>
     <meta charset="UTF-8">
-    <title>Sum Calculator</title>
+    <title>Project Tracker</title>
     <style>
         body {
-            background-color: #fff;
-            color: #000;
-            position: relative; /* Ensure body is a positioning context */
-            padding-top: 50px; /* Add padding to prevent overlap with the button */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            background-color: #FFFFFF; 
+            color: #333333;      
+            margin: 0;
+            line-height: 1.6; /* Improved readability */
         }
 
+        #app-container {
+            padding: 15px; /* Increased padding */
+            position: relative;
+        }
+
+        /* Dark Mode Base */
         .dark-mode {
-            background-color: #333;
-            color: #fff;
+            background-color: #282828; 
+            color: #E0E0E0;      
+        }
+        .dark-mode #sidebar {
+             border-right: 1px solid #444444; 
+             background-color: #303030;     
+        }
+        .dark-mode .project-item { /* Class name for JS-generated project list items */
+            background-color: transparent; 
+            border: 1px solid transparent; /* Keep consistent with light mode */
+        }
+        .dark-mode .project-item:hover:not(.selected-project) { /* class 'selected-project' will be used by JS */
+            background-color: #383838; 
+        }
+         .dark-mode #activity-diagram {
+            border: 1px solid #444444; 
+        }
+        /* JS sets activity square colors. Ensure good contrast or adjust JS if needed. */
+
+        /* Inputs and Textareas */
+        input, textarea {
+            background-color: #FFFFFF;   
+            color: #333333;          
+            border: 1px solid #CCCCCC;    
+            padding: 10px; /* Increased padding */
+            margin-bottom: 10px;
+            width: calc(100% - 20px); /* Account for new padding */
+            box-sizing: border-box;
+            border-radius: 5px;         
+            font-size: 1em; /* Ensure consistent font size */
+        }
+        textarea {
+            min-height: 60px; /* Give textarea a bit more space */
+        }
+        .dark-mode input, .dark-mode textarea {
+            background-color: #333333;   
+            color: #E0E0E0;          
+            border: 1px solid #555555;    
         }
 
-        input {
-            background-color: #fff;
-            color: #000;
-            border: 1px solid #ccc;
-            padding: 5px;
-        }
-
-        .dark-mode input {
-            background-color: #555;
-            color: #fff;
-            border: 1px solid #888;
-        }
-
+        /* Buttons */
         button {
-            background-color: #f0f0f0;
-            color: #000;
-            border: 1px solid #ccc;
-            padding: 8px 12px;
+            background-color: #DB4C3F;   
+            color: #FFFFFF;          
+            border: none;               
+            padding: 10px 15px; /* Adjusted padding */
             cursor: pointer;
+            margin-bottom: 10px;
+            border-radius: 5px;         
+            font-weight: 500; 
+            font-size: 0.95em;
+            transition: background-color 0.2s ease; /* Smooth hover */
+        }
+        button:hover {
+            background-color: #c53727; /* Darken red on hover */
+            opacity: 1; /* Remove previous opacity if any */
+        }
+        button.close-task-button { 
+             background-color: #757575; 
+        }
+        button.close-task-button:hover {
+            background-color: #616161;
         }
 
         .dark-mode button {
-            background-color: #555;
-            color: #fff;
-            border: 1px solid #888;
+            /* background-color: #DB4C3F; /* Red can remain, or be slightly adjusted if needed */
+            /* color: #FFFFFF; */
         }
+        .dark-mode button:hover {
+            background-color: #c53727; /* Consistent hover for red buttons */
+        }
+         .dark-mode button.close-task-button {
+             background-color: #505050; 
+        }
+        .dark-mode button.close-task-button:hover {
+            background-color: #404040;
+        }
+
 
         #darkModeToggle {
-            font-size: 1.5em; /* Make icon larger */
-            padding: 5px 10px; /* Adjust padding */
-            border-radius: 50%; /* Make it circular */
-            border: none; /* Remove default border */
-            background-color: transparent; /* Make background transparent */
+            font-size: 1.5em;
+            padding: 5px 10px; 
+            border-radius: 50%;
+            background-color: transparent; 
+            color: #333333; 
             position: absolute;
-            top: 10px;
-            right: 10px;
+            top: 20px; /* Adjusted for app-container padding */
+            right: 20px; /* Adjusted for app-container padding */
+            z-index: 100;
+            border: none; 
+        }
+        #darkModeToggle:hover {
+            background-color: #E0E0E0; /* Light background on hover */
+        }
+        .dark-mode #darkModeToggle {
+            color: #E0E0E0; 
+            background-color: transparent;
+        }
+        .dark-mode #darkModeToggle:hover {
+            background-color: #383838; 
         }
 
-        .dark-mode #darkModeToggle {
-            color: #fff; /* Ensure icon is visible in dark mode */
+
+        #activity-section {
+            margin-bottom: 25px; /* Increased margin */
         }
+        #activity-diagram {
+            border: 1px solid #E0E0E0; 
+            padding: 10px; 
+            min-height: 50px; 
+            display: flex; 
+            flex-wrap: wrap; 
+            align-items: flex-start;
+            box-sizing: border-box;
+            border-radius: 5px; /* Rounded corners for the container */
+        }
+
+        #main-content-area {
+            display: flex;
+            margin-top: 20px;
+            gap: 20px; /* Add gap between sidebar and task area */
+        }
+
+        #sidebar {
+            width: 30%;
+            min-width: 250px; /* Slightly wider min-width */
+            padding: 15px;
+            border-right: 1px solid #E0E0E0; 
+            background-color: #FAFAFA;     
+            box-sizing: border-box;
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        #task-display-area {
+            width: 70%;
+            padding: 15px;
+            box-sizing: border-box;
+            /* background-color: #FFFFFF; /* Optional: if body is #F9F9F9 */
+            border-radius: 5px; /* Rounded corners */
+        }
+
+        /* Project List Items */
+        #projects-list .project-item { /* This class will be added by JS */
+            cursor: pointer;
+            padding: 12px 10px; /* Increased padding */
+            margin-bottom: 8px; /* Increased margin */
+            background-color: transparent; 
+            border: 1px solid transparent; 
+            border-radius: 5px; 
+            transition: background-color 0.2s ease;
+        }
+        #projects-list .project-item:hover:not(.selected-project) {
+            background-color: #F0F0F0; 
+        }
+        #projects-list .project-item.selected-project { /* Class for selected project */
+            background-color: #DB4C3F; 
+            color: #FFFFFF;          
+            font-weight: 600; /* Bolder font for selected */
+        }
+        .dark-mode #projects-list .project-item.selected-project { 
+            background-color: #DB4C3F; 
+            color: #FFFFFF;          
+        }
+        .dark-mode #projects-list .project-item:hover:not(.selected-project) {
+            background-color: #383838;
+        }
+
+
+        /* Headings */
+        h1, h2, h3 {
+            color: #333333; 
+            font-weight: 600; 
+            margin-bottom: 15px; /* Consistent bottom margin */
+        }
+        .dark-mode h1, .dark-mode h2, .dark-mode h3 {
+            color: #E0E0E0; 
+        }
+        h1 { 
+            text-align: center;
+            font-size: 1.8em; /* Slightly larger H1 if one was present */
+        }
+         #create-project-section h2, #projects-section h2, #activity-section h2 {
+            margin-top: 0; 
+            font-size: 1.3em;
+        }
+        #task-display-area #task-display-heading { 
+             margin-top:0;
+             font-size: 1.4em; /* Prominent heading for task area */
+             margin-bottom: 20px;
+        }
+        #selected-project-details-container h3 { /* Name of selected project */
+            margin-top: 0;
+            margin-bottom: 8px; /* Reduced margin */
+            font-size: 1.2em;
+        }
+         #selected-project-details-container p { /* Description of selected project */
+            margin-top:0;
+            margin-bottom: 20px; /* Increased margin */
+            font-size: 0.95em;
+            color: #555555; /* Slightly lighter color for description */
+        }
+        .dark-mode #selected-project-details-container p {
+            color: #B0B0B0; /* Lighter description in dark mode */
+        }
+
+        /* Task List specific styling */
+        .tasks-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .tasks-list .task {
+            padding: 8px 0;
+            border-bottom: 1px solid #EAEAEA;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .tasks-list .task:last-child {
+            border-bottom: none;
+        }
+        .dark-mode .tasks-list .task {
+            border-bottom: 1px solid #404040;
+        }
+        .tasks-list .task span {
+            flex-grow: 1;
+            margin-right: 10px;
+        }
+        .tasks-list .task button.close-task-button {
+            padding: 5px 10px; /* Smaller padding for task buttons */
+            font-size: 0.85em;
+            margin-bottom: 0; /* No margin for buttons inside tasks */
+        }
+
     </style>
 </head>
 <body>
-    <button id="darkModeToggle" onclick="toggleDarkMode()">☀️/🌙</button>
+    <div id="app-container">
+        <button id="darkModeToggle" onclick="toggleDarkMode()">☀️/🌙</button>
 
-    <h1>Project Tracker</h1>
-
-    <section id="create-project-section">
-        <h2>Create New Project</h2>
-        <input type="text" id="new-project-name" placeholder="Project Name">
-        <textarea id="new-project-description" placeholder="Project Description"></textarea>
-        <button id="add-project-button">Create Project</button>
-    </section>
-
-    <section id="projects-section">
-        <h2>Projects</h2>
-        <div id="projects-list">
-            <!-- Projects will be rendered here by JavaScript -->
-            <!-- Example project structure (to be used as a template by JavaScript) -->
-            <div class="project">
-                <h3 class="project-name">Project Name Example</h3>
-                <p class="project-description">This is a description of the project.</p>
-                
-                <div class="add-task-section">
-                    <input type="text" class="new-task-description" placeholder="New Task Description">
-                    <button class="add-task-button">Add Task</button>
-                </div>
-                
-                <ul class="tasks-list">
-                    <li class="task">
-                        <span>Task 1 description</span>
-                        <button class="close-task-button">Close Task</button>
-                    </li>
-                    <li class="task">
-                        <span>Task 2 description</span>
-                        <button class="close-task-button">Close Task</button>
-                    </li>
-                </ul>
+        <section id="activity-section">
+            <h2>Activity</h2>
+            <div id="activity-diagram"> <!-- Removed inline styles, will be handled by CSS rules -->
+                <!-- Activity diagram will be rendered here -->
             </div>
-            <!-- End of example project structure -->
-        </div>
-    </section>
+        </section>
 
-    <section id="activity-section">
-        <h2>Activity</h2>
-        <div id="activity-diagram" style="border: 1px solid #ccc; padding: 10px; min-height: 50px; display: flex; flex-wrap: wrap; align-items: flex-start;">
-            <!-- Activity diagram will be rendered here -->
+        <div id="main-content-area"> <!-- Removed inline style, will be handled by CSS rules -->
+            <div id="sidebar">
+                <section id="create-project-section">
+                    <h2>Create New Project</h2>
+                    <input type="text" id="new-project-name" placeholder="Project Name">
+                    <textarea id="new-project-description" placeholder="Project Description"></textarea>
+                    <button id="add-project-button">Create Project</button>
+                </section>
+                <section id="projects-section">
+                    <h2>Projects</h2>
+                    <div id="projects-list">
+                        <!-- Project names will be listed here by JavaScript -->
+                        <!-- Example project structure (to be used by JS for structure of items) -->
+                        <!-- <div class="project-item"> -->
+                        <!--    <h3 class="project-name-list-item">Project Name Example</h3> -->
+                        <!-- </div> -->
+                    </div>
+                </section>
+            </div>
+            <div id="task-display-area">
+                <h2 id="task-display-heading">Select a project</h2>
+                <div id="selected-project-details-container">
+                    <h3 id="selected-project-name"></h3>
+                    <p id="selected-project-description"></p>
+                </div>
+                <div id="current-project-add-task-container">
+                    <!-- Add task form for the selected project will go here by JS -->
+                </div>
+                <div id="current-project-tasks-list">
+                    <!-- Tasks for the selected project will be listed here by JS -->
+                </div>
+            </div>
         </div>
-    </section>
+    </div>
 
     <script>
+        let selectedProjectId = null;
+
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
         }
@@ -115,13 +310,26 @@
         let projects = [];
 
         function saveProjects() {
-            localStorage.setItem('projectTrackerData', JSON.stringify(projects));
+            const dataToSave = {
+                projects: projects,
+                selectedProjectId: selectedProjectId
+            };
+            localStorage.setItem('projectTrackerData', JSON.stringify(dataToSave));
         }
 
         function loadProjects() {
             const retrievedData = localStorage.getItem('projectTrackerData');
             if (retrievedData) {
-                projects = JSON.parse(retrievedData);
+                const parsedData = JSON.parse(retrievedData);
+                projects = parsedData.projects || [];
+                selectedProjectId = parsedData.selectedProjectId || null;
+                 // Validate selectedProjectId
+                if (selectedProjectId && !projects.find(p => p.id === selectedProjectId)) {
+                    selectedProjectId = null; 
+                }
+            } else {
+                projects = [];
+                selectedProjectId = null;
             }
         }
 
@@ -134,59 +342,120 @@
                 tasks: []
             };
             projects.push(project);
-            saveProjects(); // Save after adding a project
-            renderProjects();
+            selectedProjectId = project.id; // Select the newly created project
+            saveProjects();
+            renderProjectList(); // Update sidebar
+            displayProjectDetails(project.id); // Display the new project in main area
+            return project.id;
         }
 
-        function renderProjects() {
+        // Renders only the list of projects in the sidebar
+        function renderProjectList() {
             const projectsListDiv = document.getElementById('projects-list');
-            projectsListDiv.innerHTML = ''; // Clear existing projects
+            projectsListDiv.innerHTML = ''; 
 
             projects.forEach(project => {
-                const projectDiv = document.createElement('div');
-                projectDiv.classList.add('project');
-                projectDiv.setAttribute('data-project-id', project.id);
+                const projectItemDiv = document.createElement('div');
+                projectItemDiv.classList.add('project-item');
+                projectItemDiv.textContent = project.name;
+                projectItemDiv.dataset.projectId = project.id;
+                
+                if (project.id === selectedProjectId) {
+                    projectItemDiv.classList.add('selected-project'); // Use the CSS class for selection
+                }
 
-                const projectName = document.createElement('h3');
-                projectName.classList.add('project-name');
-                projectName.textContent = project.name;
-                projectDiv.appendChild(projectName);
-
-                const projectDescription = document.createElement('p');
-                projectDescription.classList.add('project-description');
-                projectDescription.textContent = project.description;
-                projectDiv.appendChild(projectDescription);
-
-                // Add task section
-                const addTaskSection = document.createElement('div');
-                addTaskSection.classList.add('add-task-section');
-
-                const newTaskInput = document.createElement('input');
-                newTaskInput.type = 'text';
-                newTaskInput.classList.add('new-task-description');
-                newTaskInput.placeholder = 'New Task Description';
-                addTaskSection.appendChild(newTaskInput);
-
-                const addTaskButton = document.createElement('button');
-                addTaskButton.classList.add('add-task-button');
-                addTaskButton.textContent = 'Add Task';
-                addTaskButton.onclick = () => {
-                    const taskDescription = newTaskInput.value.trim();
-                    if (taskDescription) {
-                        addTaskToProject(project.id, taskDescription);
-                        newTaskInput.value = ''; // Clear input after adding
-                    }
+                projectItemDiv.onclick = () => {
+                    selectedProjectId = project.id;
+                    saveProjects(); // Save selection
+                    renderProjectList(); 
+                    displayProjectDetails(project.id);
                 };
-                addTaskSection.appendChild(addTaskButton);
-                projectDiv.appendChild(addTaskSection);
-
-                const tasksContainer = document.createElement('ul');
-                tasksContainer.classList.add('tasks-list');
-                projectDiv.appendChild(tasksContainer);
-                renderTasks(project.id, tasksContainer);
-
-                projectsListDiv.appendChild(projectDiv);
+                projectsListDiv.appendChild(projectItemDiv);
             });
+        }
+        
+        function displayProjectDetails(projectId) {
+            const project = projects.find(p => p.id === projectId);
+            const taskDisplayArea = document.getElementById('task-display-area');
+            const taskDisplayHeading = document.getElementById('task-display-heading');
+            const detailsContainer = document.getElementById('selected-project-details-container');
+            const projectNameEl = document.getElementById('selected-project-name');
+            const projectDescEl = document.getElementById('selected-project-description');
+            const addTaskContainer = document.getElementById('current-project-add-task-container');
+            const tasksListDiv = document.getElementById('current-project-tasks-list');
+
+            if (!project) {
+                taskDisplayHeading.textContent = 'Project Not Found';
+                detailsContainer.style.display = 'none';
+                addTaskContainer.innerHTML = '';
+                tasksListDiv.innerHTML = '<p>Please select a project from the list or create a new one.</p>';
+                return;
+            }
+
+            taskDisplayHeading.textContent = project.name; // More direct heading update
+            detailsContainer.style.display = 'block';
+            projectNameEl.textContent = project.name; 
+            projectDescEl.textContent = project.description;
+
+            addTaskContainer.innerHTML = `
+                <input type="text" id="new-task-description-${projectId}" class="new-task-description" placeholder="Add a new task...">
+                <button id="add-task-btn-${projectId}" class="add-task-button">Add Task</button>
+            `;
+            // Add event listener to the new button
+            document.getElementById(`add-task-btn-${projectId}`).onclick = () => {
+                const taskInput = document.getElementById(`new-task-description-${projectId}`);
+                const taskDescription = taskInput.value.trim();
+                if (taskDescription) {
+                    addTaskToProject(projectId, taskDescription);
+                    taskInput.value = ''; 
+                } else {
+                    alert("Please enter a task description.");
+                }
+            };
+            
+            renderTasks(projectId, tasksListDiv);
+        }
+
+        function renderTasks(projectId, tasksContainerElement) {
+            const project = projects.find(p => p.id === projectId);
+            tasksContainerElement.innerHTML = ''; // Clear existing tasks
+
+            if (!project || !project.tasks) {
+                tasksContainerElement.innerHTML = '<p>No tasks for this project yet.</p>';
+                return;
+            }
+            
+            if (project.tasks.length === 0) {
+                 tasksContainerElement.innerHTML = '<p>No tasks for this project yet. Add one above!</p>';
+                 return;
+            }
+
+            const ul = document.createElement('ul');
+            ul.classList.add('tasks-list');
+            project.tasks.forEach(task => {
+                const taskLi = document.createElement('li');
+                taskLi.classList.add('task');
+                taskLi.dataset.taskId = task.id;
+
+                const taskDescriptionSpan = document.createElement('span');
+                taskDescriptionSpan.textContent = task.description;
+                taskLi.appendChild(taskDescriptionSpan);
+
+                if (task.status === 'open') {
+                    const closeTaskButton = document.createElement('button');
+                    closeTaskButton.classList.add('close-task-button');
+                    closeTaskButton.textContent = 'Close Task';
+                    closeTaskButton.onclick = () => closeTask(projectId, task.id);
+                    taskLi.appendChild(closeTaskButton);
+                } else {
+                    const statusSpan = document.createElement('span');
+                    statusSpan.textContent = ` (Closed on ${new Date(task.closureDate).toLocaleDateString()})`;
+                    taskDescriptionSpan.style.textDecoration = 'line-through';
+                    taskLi.appendChild(statusSpan);
+                }
+                ul.appendChild(taskLi);
+            });
+            tasksContainerElement.appendChild(ul);
         }
 
         document.getElementById('add-project-button').addEventListener('click', () => {
@@ -196,7 +465,8 @@
             const description = newProjectDescriptionInput.value.trim();
 
             if (name && description) {
-                createProject(name, description);
+                const newProjectId = createProject(name, description);
+                // displayProjectDetails is already called within createProject
                 newProjectNameInput.value = '';
                 newProjectDescriptionInput.value = '';
             } else {
@@ -215,40 +485,8 @@
                     closureDate: null
                 };
                 project.tasks.push(task);
-                saveProjects(); // Save after adding a task
-                renderProjects(); // Re-render all projects to update task lists
-            }
-        }
-
-        function renderTasks(projectId, tasksContainerElement) {
-            const project = projects.find(p => p.id === projectId);
-            tasksContainerElement.innerHTML = ''; // Clear existing tasks
-
-            if (project) {
-                project.tasks.forEach(task => {
-                    const taskLi = document.createElement('li');
-                    taskLi.classList.add('task');
-                    taskLi.setAttribute('data-task-id', task.id);
-
-                    const taskDescriptionSpan = document.createElement('span');
-                    taskDescriptionSpan.textContent = task.description;
-                    taskLi.appendChild(taskDescriptionSpan);
-
-                    if (task.status === 'open') {
-                        const closeTaskButton = document.createElement('button');
-                        closeTaskButton.classList.add('close-task-button');
-                        closeTaskButton.textContent = 'Close Task';
-                        closeTaskButton.onclick = () => closeTask(projectId, task.id);
-                        taskLi.appendChild(closeTaskButton);
-                    } else {
-                        const statusSpan = document.createElement('span');
-                        statusSpan.textContent = ` (Closed on ${new Date(task.closureDate).toLocaleDateString()})`;
-                        taskLi.appendChild(statusSpan);
-                         // Make closed tasks visually distinct
-                        taskDescriptionSpan.style.textDecoration = 'line-through';
-                    }
-                    tasksContainerElement.appendChild(taskLi);
-                });
+                saveProjects();
+                displayProjectDetails(projectId); // Refresh main area
             }
         }
 
@@ -259,9 +497,9 @@
                 if (task) {
                     task.status = 'closed';
                     task.closureDate = new Date().toISOString();
-                    saveProjects(); // Save after closing a task
-                    renderProjects(); // Re-render to update task status
-                    renderActivityDiagram(); // Update activity diagram
+                    saveProjects();
+                    renderActivityDiagram();
+                    displayProjectDetails(projectId); // Refresh main area
                 }
             }
         }
@@ -271,7 +509,7 @@
             projects.forEach(project => {
                 project.tasks.forEach(task => {
                     if (task.status === 'closed' && task.closureDate) {
-                        const dateKey = task.closureDate.substring(0, 10); // YYYY-MM-DD
+                        const dateKey = task.closureDate.substring(0, 10); 
                         completionData[dateKey] = (completionData[dateKey] || 0) + 1;
                     }
                 });
@@ -281,10 +519,10 @@
 
         function renderActivityDiagram() {
             const diagramContainer = document.getElementById('activity-diagram');
-            diagramContainer.innerHTML = ''; // Clear previous content
+            diagramContainer.innerHTML = ''; 
 
             const completionData = getTaskCompletionData();
-            const dates = Object.keys(completionData).sort(); // Sort dates chronologically
+            const dates = Object.keys(completionData).sort(); 
 
             if (dates.length === 0) {
                 diagramContainer.textContent = 'No task completion activity yet.';
@@ -295,26 +533,43 @@
                 const count = completionData[date];
                 const daySquare = document.createElement('div');
                 daySquare.title = `${date}: ${count} task${count > 1 ? 's' : ''} closed`;
-                // Simple styling: darker green for more tasks
-                let intensity = Math.min(50 + count * 20, 200); // Cap intensity
+                let intensity = Math.min(50 + count * 20, 200); 
                 daySquare.style.backgroundColor = `rgb(0, ${intensity}, 0)`;
                 daySquare.style.width = '15px';
                 daySquare.style.height = '15px';
                 daySquare.style.margin = '2px';
-                daySquare.style.display = 'inline-block'; // Changed to inline-block for side-by-side
+                daySquare.style.display = 'inline-block'; 
                 daySquare.style.fontSize = '10px'; 
                 daySquare.style.textAlign = 'center';
                 daySquare.style.color = 'white';
-                // daySquare.textContent = count; // Optional: display count directly in square
                 diagramContainer.appendChild(daySquare);
             });
         }
 
-        // Load projects from localStorage when the script starts
+        // Initial Load Logic
         loadProjects();
-        // Initial render
-        renderProjects();
-        renderActivityDiagram(); // Render activity diagram on load
+        renderProjectList(); // Populate sidebar
+
+        const taskDisplayArea = document.getElementById('task-display-area');
+        const taskDisplayHeading = document.getElementById('task-display-heading');
+        const detailsContainer = document.getElementById('selected-project-details-container');
+        const addTaskContainer = document.getElementById('current-project-add-task-container');
+        const tasksListDiv = document.getElementById('current-project-tasks-list');
+
+        if (selectedProjectId && projects.find(p => p.id === selectedProjectId)) {
+            displayProjectDetails(selectedProjectId);
+        } else if (projects.length > 0) {
+            selectedProjectId = projects[0].id; // Select the first project
+            saveProjects(); // Save this default selection
+            renderProjectList(); // Re-render sidebar to highlight the first project
+            displayProjectDetails(selectedProjectId);
+        } else {
+            taskDisplayHeading.textContent = 'Welcome!';
+            detailsContainer.style.display = 'none';
+            addTaskContainer.innerHTML = '';
+            tasksListDiv.innerHTML = '<p>No projects yet. Create one in the sidebar to get started!</p>';
+        }
+        renderActivityDiagram();
 
     </script>
 </body>
