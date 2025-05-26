@@ -60,23 +60,262 @@
     </style>
 </head>
 <body>
-    <h1>Sum Calculator</h1>
-    <input type="number" id="num1" placeholder="Enter first number">
-    <input type="number" id="num2" placeholder="Enter second number">
-    <button onclick="calculateSum()">Calculate Sum</button>
-    <p id="result"></p>
     <button id="darkModeToggle" onclick="toggleDarkMode()">☀️/🌙</button>
-    <script>
-        function calculateSum() {
-            var num1 = parseFloat(document.getElementById('num1').value);
-            var num2 = parseFloat(document.getElementById('num2').value);
-            var sum = num1 + num2;
-            document.getElementById('result').innerText = "Sum: " + sum;
-        }
 
+    <h1>Project Tracker</h1>
+
+    <section id="create-project-section">
+        <h2>Create New Project</h2>
+        <input type="text" id="new-project-name" placeholder="Project Name">
+        <textarea id="new-project-description" placeholder="Project Description"></textarea>
+        <button id="add-project-button">Create Project</button>
+    </section>
+
+    <section id="projects-section">
+        <h2>Projects</h2>
+        <div id="projects-list">
+            <!-- Projects will be rendered here by JavaScript -->
+            <!-- Example project structure (to be used as a template by JavaScript) -->
+            <div class="project">
+                <h3 class="project-name">Project Name Example</h3>
+                <p class="project-description">This is a description of the project.</p>
+                
+                <div class="add-task-section">
+                    <input type="text" class="new-task-description" placeholder="New Task Description">
+                    <button class="add-task-button">Add Task</button>
+                </div>
+                
+                <ul class="tasks-list">
+                    <li class="task">
+                        <span>Task 1 description</span>
+                        <button class="close-task-button">Close Task</button>
+                    </li>
+                    <li class="task">
+                        <span>Task 2 description</span>
+                        <button class="close-task-button">Close Task</button>
+                    </li>
+                </ul>
+            </div>
+            <!-- End of example project structure -->
+        </div>
+    </section>
+
+    <section id="activity-section">
+        <h2>Activity</h2>
+        <div id="activity-diagram" style="border: 1px solid #ccc; padding: 10px; min-height: 50px; display: flex; flex-wrap: wrap; align-items: flex-start;">
+            <!-- Activity diagram will be rendered here -->
+        </div>
+    </section>
+
+    <script>
         function toggleDarkMode() {
             document.body.classList.toggle('dark-mode');
         }
+
+        let projects = [];
+
+        function saveProjects() {
+            localStorage.setItem('projectTrackerData', JSON.stringify(projects));
+        }
+
+        function loadProjects() {
+            const retrievedData = localStorage.getItem('projectTrackerData');
+            if (retrievedData) {
+                projects = JSON.parse(retrievedData);
+            }
+        }
+
+        function createProject(name, description) {
+            const project = {
+                id: Date.now().toString(),
+                name: name,
+                description: description,
+                creationDate: new Date().toISOString(),
+                tasks: []
+            };
+            projects.push(project);
+            saveProjects(); // Save after adding a project
+            renderProjects();
+        }
+
+        function renderProjects() {
+            const projectsListDiv = document.getElementById('projects-list');
+            projectsListDiv.innerHTML = ''; // Clear existing projects
+
+            projects.forEach(project => {
+                const projectDiv = document.createElement('div');
+                projectDiv.classList.add('project');
+                projectDiv.setAttribute('data-project-id', project.id);
+
+                const projectName = document.createElement('h3');
+                projectName.classList.add('project-name');
+                projectName.textContent = project.name;
+                projectDiv.appendChild(projectName);
+
+                const projectDescription = document.createElement('p');
+                projectDescription.classList.add('project-description');
+                projectDescription.textContent = project.description;
+                projectDiv.appendChild(projectDescription);
+
+                // Add task section
+                const addTaskSection = document.createElement('div');
+                addTaskSection.classList.add('add-task-section');
+
+                const newTaskInput = document.createElement('input');
+                newTaskInput.type = 'text';
+                newTaskInput.classList.add('new-task-description');
+                newTaskInput.placeholder = 'New Task Description';
+                addTaskSection.appendChild(newTaskInput);
+
+                const addTaskButton = document.createElement('button');
+                addTaskButton.classList.add('add-task-button');
+                addTaskButton.textContent = 'Add Task';
+                addTaskButton.onclick = () => {
+                    const taskDescription = newTaskInput.value.trim();
+                    if (taskDescription) {
+                        addTaskToProject(project.id, taskDescription);
+                        newTaskInput.value = ''; // Clear input after adding
+                    }
+                };
+                addTaskSection.appendChild(addTaskButton);
+                projectDiv.appendChild(addTaskSection);
+
+                const tasksContainer = document.createElement('ul');
+                tasksContainer.classList.add('tasks-list');
+                projectDiv.appendChild(tasksContainer);
+                renderTasks(project.id, tasksContainer);
+
+                projectsListDiv.appendChild(projectDiv);
+            });
+        }
+
+        document.getElementById('add-project-button').addEventListener('click', () => {
+            const newProjectNameInput = document.getElementById('new-project-name');
+            const newProjectDescriptionInput = document.getElementById('new-project-description');
+            const name = newProjectNameInput.value.trim();
+            const description = newProjectDescriptionInput.value.trim();
+
+            if (name && description) {
+                createProject(name, description);
+                newProjectNameInput.value = '';
+                newProjectDescriptionInput.value = '';
+            } else {
+                alert('Please provide both a project name and a description.');
+            }
+        });
+
+        function addTaskToProject(projectId, taskDescription) {
+            const project = projects.find(p => p.id === projectId);
+            if (project && taskDescription) {
+                const task = {
+                    id: Date.now().toString() + '-task',
+                    description: taskDescription,
+                    creationDate: new Date().toISOString(),
+                    status: 'open',
+                    closureDate: null
+                };
+                project.tasks.push(task);
+                saveProjects(); // Save after adding a task
+                renderProjects(); // Re-render all projects to update task lists
+            }
+        }
+
+        function renderTasks(projectId, tasksContainerElement) {
+            const project = projects.find(p => p.id === projectId);
+            tasksContainerElement.innerHTML = ''; // Clear existing tasks
+
+            if (project) {
+                project.tasks.forEach(task => {
+                    const taskLi = document.createElement('li');
+                    taskLi.classList.add('task');
+                    taskLi.setAttribute('data-task-id', task.id);
+
+                    const taskDescriptionSpan = document.createElement('span');
+                    taskDescriptionSpan.textContent = task.description;
+                    taskLi.appendChild(taskDescriptionSpan);
+
+                    if (task.status === 'open') {
+                        const closeTaskButton = document.createElement('button');
+                        closeTaskButton.classList.add('close-task-button');
+                        closeTaskButton.textContent = 'Close Task';
+                        closeTaskButton.onclick = () => closeTask(projectId, task.id);
+                        taskLi.appendChild(closeTaskButton);
+                    } else {
+                        const statusSpan = document.createElement('span');
+                        statusSpan.textContent = ` (Closed on ${new Date(task.closureDate).toLocaleDateString()})`;
+                        taskLi.appendChild(statusSpan);
+                         // Make closed tasks visually distinct
+                        taskDescriptionSpan.style.textDecoration = 'line-through';
+                    }
+                    tasksContainerElement.appendChild(taskLi);
+                });
+            }
+        }
+
+        function closeTask(projectId, taskId) {
+            const project = projects.find(p => p.id === projectId);
+            if (project) {
+                const task = project.tasks.find(t => t.id === taskId);
+                if (task) {
+                    task.status = 'closed';
+                    task.closureDate = new Date().toISOString();
+                    saveProjects(); // Save after closing a task
+                    renderProjects(); // Re-render to update task status
+                    renderActivityDiagram(); // Update activity diagram
+                }
+            }
+        }
+
+        function getTaskCompletionData() {
+            const completionData = {};
+            projects.forEach(project => {
+                project.tasks.forEach(task => {
+                    if (task.status === 'closed' && task.closureDate) {
+                        const dateKey = task.closureDate.substring(0, 10); // YYYY-MM-DD
+                        completionData[dateKey] = (completionData[dateKey] || 0) + 1;
+                    }
+                });
+            });
+            return completionData;
+        }
+
+        function renderActivityDiagram() {
+            const diagramContainer = document.getElementById('activity-diagram');
+            diagramContainer.innerHTML = ''; // Clear previous content
+
+            const completionData = getTaskCompletionData();
+            const dates = Object.keys(completionData).sort(); // Sort dates chronologically
+
+            if (dates.length === 0) {
+                diagramContainer.textContent = 'No task completion activity yet.';
+                return;
+            }
+
+            dates.forEach(date => {
+                const count = completionData[date];
+                const daySquare = document.createElement('div');
+                daySquare.title = `${date}: ${count} task${count > 1 ? 's' : ''} closed`;
+                // Simple styling: darker green for more tasks
+                let intensity = Math.min(50 + count * 20, 200); // Cap intensity
+                daySquare.style.backgroundColor = `rgb(0, ${intensity}, 0)`;
+                daySquare.style.width = '15px';
+                daySquare.style.height = '15px';
+                daySquare.style.margin = '2px';
+                daySquare.style.display = 'inline-block'; // Changed to inline-block for side-by-side
+                daySquare.style.fontSize = '10px'; 
+                daySquare.style.textAlign = 'center';
+                daySquare.style.color = 'white';
+                // daySquare.textContent = count; // Optional: display count directly in square
+                diagramContainer.appendChild(daySquare);
+            });
+        }
+
+        // Load projects from localStorage when the script starts
+        loadProjects();
+        // Initial render
+        renderProjects();
+        renderActivityDiagram(); // Render activity diagram on load
+
     </script>
 </body>
 </html>
